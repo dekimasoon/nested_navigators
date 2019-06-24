@@ -307,7 +307,10 @@ class _NestedNavigatorsState<T> extends State<NestedNavigators> {
       );
 
   Widget _buildNativeBottomNavigatorBar() => BottomNavigationBar(
+        // TODO: Make it configurable
         type: BottomNavigationBarType.fixed,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         items: getBottomNavigatorBarItems(),
         currentIndex: _getNavigatorIndexByKey(_bloc.selectedNavigatorKey),
         onTap: (index) => _onTabBarItemClick(_getNavigatorKeyByIndex(index)),
