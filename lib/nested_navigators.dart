@@ -214,6 +214,7 @@ class _NestedNavigatorsState<T> extends State<NestedNavigators> {
   NestedNavigatorsBloc<T> _bloc;
   bool _hasBlocProviderInTree = false;
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
+  final PageController _pageController = PageController();
 
   Map<T, NestedNavigatorItem> get _items => widget.items;
 
@@ -238,9 +239,10 @@ class _NestedNavigatorsState<T> extends State<NestedNavigators> {
 
     // Set the bottom navigation bar visibility when nested navigator selected
     // by using NestedNavigatorsBloc.select() or NestedNavigatorsBloc.selectAndNavigate()
-    _bloc.outSelectTab.listen(
-      (key) => _bloc.setTabBarVisibility(_items[key].navTabBarVisible),
-    );
+    _bloc.outSelectTab.listen((key) {
+      _pageController.jumpToPage(_getNavigatorIndexByKey(key));
+      _bloc.setTabBarVisibility(_items[key].navTabBarVisible);
+    });
 
     // Listen queries from widget which was added to widget tree with using root navigator,
     // but which is child of NestedNavigatorsBlocProvider, it's will work when app widget is child of NestedNavigatorsBlocProvider
@@ -285,10 +287,11 @@ class _NestedNavigatorsState<T> extends State<NestedNavigators> {
                     )
                   : null,
               drawerDragStartBehavior: widget.drawerDragStartBehavior,
-              body: Stack(
-                  children: _items.keys
-                      .map((key) => _buildNavigator(key, snapshot.data))
-                      .toList()),
+              body: PageView(
+                physics: NeverScrollableScrollPhysics(),
+                children: _items.keys.map((key) => _items[key].navigator).toList(),
+                controller: _pageController,
+              ),
               bottomNavigationBar: widget.showBottomNavigationBar
                   ? StreamBuilder<bool>(
                       initialData: true,
